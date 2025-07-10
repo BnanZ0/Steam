@@ -139,22 +139,28 @@ async function getNameList() {
 const nameList = await getNameList();
 
 function removeMatchingFriends() {
+  const targetEl = document.querySelectorAll('div._3C0istohNAM4_kDuBULbcw')
   const containers = [
-    document.querySelector('div._3C0istohNAM4_kDuBULbcw'),
-    document.querySelector('div._39bm0CkBxBjJsnPpAzoZlv')
+    document.querySelector('div._39bm0CkBxBjJsnPpAzoZlv'),
+    ...targetEl
   ];
 
   containers.forEach(container => {
     if (container) {
-      Array.from(container.children).forEach(child => {
-        const text = child.innerText.trim();
+      Array.from(container.children).forEach(friend => {
+        const target = friend.querySelector('.nOdcT-MoOaXGePXLyPe0H');
+        var text = "";
+        if (target) {
+          text = target.innerText.trim();
+        } else {
+          text = friend.getAttribute('aria-label') || "";
+        }
         const matched = nameList.find(name => text.includes(name));
-
         if (matched) {
           console.log('Hiding:', matched);
-          child.style.display = 'none'; // 替代 remove()
+          friend.style.display = 'none'; // 替代 remove()
         } else {
-          child.style.display = ''; // 恢复显示（可选）
+          friend.style.display = ''; // 恢复显示（可选）
         }
       });
     }

@@ -43,23 +43,23 @@ async function getNameList() {
 const nameList = await getNameList();
 
 async function removeMatchingFriends() {
-    await waitForElement('.friend.ingame, .friend.online')
-    const friends = document.querySelectorAll('.friend.ingame, .friend.online');
-    
-    friends.forEach(friend => {
-        const target = friend.querySelector('.nOdcT-MoOaXGePXLyPe0H');
-        if (target) {
-            const text = target.innerText.trim();
-            const matched = nameList.find(name => text.includes(name));
+  await waitForElement('.friend.ingame, .friend.online')
+  const friends = document.querySelectorAll('.friend.ingame, .friend.online');
 
-            if (matched) {
-                console.log('Hiding:', matched);
-                friend.style.display = 'none'; // 替代 remove()
-            } else {
-                friend.style.display = ''; // 恢复显示（可选）
-            }
-        }
-    });
+  friends.forEach(friend => {
+    const target = friend.querySelector('.nOdcT-MoOaXGePXLyPe0H');
+    if (target) {
+      const text = target.innerText.trim();
+      const matched = nameList.find(name => text.includes(name));
+
+      if (matched) {
+        console.log('Hiding:', matched);
+        friend.style.display = 'none'; // 替代 remove()
+      } else {
+        friend.style.display = ''; // 恢复显示（可选）
+      }
+    }
+  });
 }
 
 // 初始执行一次
