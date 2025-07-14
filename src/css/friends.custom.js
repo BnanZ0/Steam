@@ -55,10 +55,20 @@ async function removeMatchingFriends() {
       if (matched) {
         console.log('Hiding:', matched);
         friend.style.display = 'none'; // 替代 remove()
+        friend.dataset.hiddenByScript = 'true'; // 打标记
       } else {
         friend.style.display = ''; // 恢复显示（可选）
+        delete friend.dataset.hiddenByScript;
       }
     }
+  });
+}
+
+function restoreHiddenFriends() {
+  const hiddenFriends = document.querySelectorAll('[data-hidden-by-script="true"]');
+  hiddenFriends.forEach(friend => {
+    friend.style.display = '';
+    delete friend.dataset.hiddenByScript;
   });
 }
 
@@ -66,11 +76,125 @@ async function removeMatchingFriends() {
 removeMatchingFriends();
 
 // 监听页面 DOM 变化
-const observer = new MutationObserver(() => {
+const blacklist_observer = new MutationObserver(() => {
   removeMatchingFriends();
 });
 
-observer.observe(document.body, {
+blacklist_observer.observe(document.body, {
   childList: true,
   subtree: true
 });
+
+let isObserverActive = true;
+
+function startBlacklistObserver() {
+  if (isObserverActive) return;
+  removeMatchingFriends()
+  blacklist_observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+  isObserverActive = true;
+  console.log("✅ Blacklist observer 已启动。");
+}
+
+function stopBlacklistObserver() {
+  if (!isObserverActive) return;
+  blacklist_observer.disconnect();
+  restoreHiddenFriends();
+  isObserverActive = false;
+  console.log("🛑 Blacklist observer 已停止。");
+}
+
+function toggleBlacklistObserver() {
+  if (isObserverActive) {
+    stopBlacklistObserver();
+  } else {
+    startBlacklistObserver();
+  }
+  return isObserverActive;
+}
+
+function setupToggleButtonInMenu(menuContainer) {
+  // 检查按钮是否已存在，防止重复添加
+  if (menuContainer.querySelector('.blacklist-observer-toggle-btn')) {
+    return;
+  }
+
+  // 创建一个容器，让我们的按钮看起来更像一个菜单项
+  const menuItem = document.createElement('div');
+  menuItem.className = 'blacklist-observer-toggle-item'; // 自定义 class
+
+  // 创建按钮元素
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'blacklist-observer-toggle-btn'; // 自定义 class
+  toggleBtn.textContent = `黑名单`;
+
+  // 为按钮添加一些基本样式，使其能融入菜单
+  // 您可以根据实际页面的 CSS 进行微调
+  Object.assign(toggleBtn.style, {
+    width: '100%',
+    padding: '4px 6px',
+    border: 'none',
+    background: 'transparent',
+    textAlign: 'left',
+    cursor: 'pointer',
+    color: isObserverActive ? '#6dcff6' : 'inherit', // 继承父元素的文字颜色
+    font: 'inherit'   // 继承父元素的字体
+  });
+  
+  // 简单的鼠标悬停效果
+  menuItem.onmouseover = () => { menuItem.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'; };
+  menuItem.onmouseout = () => { menuItem.style.backgroundColor = 'transparent'; };
+
+  // 为按钮添加点击事件
+  toggleBtn.addEventListener('click', (event) => {
+    event.stopPropagation(); // 阻止事件冒泡，避免点击按钮时关闭了菜单
+    const isActive = toggleBlacklistObserver();
+    // 更新按钮文本以反映新状态
+    toggleBtn.style.color = isActive ? '#6dcff6' : 'inherit'
+  });
+
+  // 将按钮放入菜单项容器，再将容器添加到菜单中
+  menuItem.appendChild(toggleBtn);
+  // 使用 prepend 将其添加到菜单的顶部
+  menuContainer.append(menuItem);
+  
+  console.log("开关按钮已成功添加到 .contextMenuSectionContent 菜单中。");
+}
+
+/**
+ * 创建一个新的 MutationObserver (menuObserver) 来监视 DOM，
+ * 等待 .personaContextMenuItem 元素出现。
+ */
+const menuObserver = new MutationObserver((mutationsList) => {
+  for (const mutation of mutationsList) {
+    if (mutation.addedNodes.length) {
+      for (const node of mutation.addedNodes) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          // 检查被添加的节点本身或其后代是否是我们寻找的菜单
+          const targetMenu = node.matches('.contextMenuSectionContent') ? node : node.querySelector('.contextMenuSectionContent');
+          if (targetMenu) {
+            setupToggleButtonInMenu(targetMenu);
+            // 找到后可以停止对本次 mutation 的进一步检查，提高效率
+            return; 
+          }
+        }
+      }
+    }
+  }
+});
+
+// 启动 menuObserver，开始监视整个页面的结构变化
+menuObserver.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+
+console.log("脚本已启动，正在监视页面，等待 .personaContextMenuItem 菜单出现...");
+
+// 同时，在脚本加载时也检查一次，以防菜单在脚本运行前就已经存在
+const existingMenu = document.querySelector('.contextMenuSectionContent');
+if (existingMenu) {
+  setupToggleButtonInMenu(existingMenu);
+}

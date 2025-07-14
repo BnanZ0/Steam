@@ -171,11 +171,11 @@ function removeMatchingFriends() {
 removeMatchingFriends();
 
 // 监听页面 DOM 变化
-const observer = new MutationObserver(() => {
+const blacklist_observer = new MutationObserver(() => {
   removeMatchingFriends();
 });
 
-observer.observe(document.body, {
+blacklist_observer.observe(document.body, {
   childList: true,
   subtree: true
 });
