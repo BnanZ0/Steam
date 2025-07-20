@@ -139,30 +139,45 @@ async function getNameList() {
 const nameList = await getNameList();
 
 function removeMatchingFriends() {
-  const targetEl = document.querySelectorAll('div._3C0istohNAM4_kDuBULbcw')
   const containers = [
-    document.querySelector('div._39bm0CkBxBjJsnPpAzoZlv'),
-    ...targetEl
+    ...document.querySelectorAll('div._39bm0CkBxBjJsnPpAzoZlv.X40qiCKsKLskkN1pEsNNT'),
+    ...document.querySelectorAll('div._3C0istohNAM4_kDuBULbcw._3gj9A13VQyuW_6wr_Io8Xz'),
   ];
 
   containers.forEach(container => {
     if (container) {
+      var hide_count = 0;
+      var head = null;
+      var head_text = '';
+      var number = 0;
       Array.from(container.children).forEach(friend => {
         const target = friend.querySelector('.nOdcT-MoOaXGePXLyPe0H');
         var text = "";
         if (target) {
           text = target.innerText.trim();
         } else {
-          text = friend.getAttribute('aria-label') || "";
+          text = friend.innerText.trim();
+        }
+        if (text.includes('位')) {
+          console.log('text:', text);
+          head_text = text;
+          head = friend
+          number = text.match(/\d+/)[0];
         }
         const matched = nameList.find(name => text.includes(name));
         if (matched) {
           console.log('Hiding:', matched);
-          friend.style.display = 'none'; // 替代 remove()
-        } else {
-          friend.style.display = ''; // 恢复显示（可选）
+          //friend.style.display = 'none'; // 替代 remove()
+          friend.remove()
+          hide_count++;
         }
       });
+      if (number == hide_count && head != null) {
+        const parent = head.parentElement;
+        parent.style.display = 'none';
+      } else if (head != null) {
+        head.textContent = head_text.replace(/\d+/, number - hide_count);
+      }
     }
   });
 }
