@@ -155,6 +155,8 @@ function removeMatchingFriends() {
         var text = "";
         if (target) {
           text = target.innerText.trim();
+        } else if (friend.hasAttribute('aria-label')) {
+          text = friend.getAttribute('aria-label');
         } else {
           text = friend.innerText.trim();
         }
