@@ -62,6 +62,26 @@ async function removeMatchingFriends() {
       }
     }
   });
+
+  // 检查每个游戏分组
+  document.querySelectorAll('.DropTarget.friendGroup.gameGroup').forEach(group => {
+    const container = group.querySelector('.friendsContainer');
+    if (!container) return;
+
+    const friendsInGroup = container.children;
+    if (friendsInGroup.length === 0) return;
+
+    // 检查是否全部被标记隐藏
+    const allHidden = Array.from(friendsInGroup).every(friend => friend.dataset.hiddenByScript === 'true');
+
+    if (allHidden) {
+      group.style.display = 'none';
+      group.dataset.hiddenByScript = 'true';
+    } else {
+      group.style.display = '';
+      delete group.dataset.hiddenByScript;
+    }
+  });
 }
 
 function restoreHiddenFriends() {
