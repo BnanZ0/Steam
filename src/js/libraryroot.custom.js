@@ -120,7 +120,7 @@ async function getNameList() {
   try {
     // 路径是相对于皮肤的根目录（skin.json 所在的位置）。
     // Steam 客户端的 JS 环境通常会从那里解析 fetch 请求。
-    const response = await fetch('./skins/Steam/blacklist.json');
+    const response = await fetch('./blacklist.json');
 
     if (!response.ok) {
       throw new Error(`获取 blacklist.json 时发生 HTTP 错误: ${response.status}`);
