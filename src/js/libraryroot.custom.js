@@ -142,6 +142,7 @@ function removeMatchingFriends() {
   const containers = [
     ...document.querySelectorAll('div._39bm0CkBxBjJsnPpAzoZlv.X40qiCKsKLskkN1pEsNNT'),
     ...document.querySelectorAll('div._3C0istohNAM4_kDuBULbcw._3gj9A13VQyuW_6wr_Io8Xz'),
+    ...document.querySelectorAll('div._39bm0CkBxBjJsnPpAzoZlv.X40qiCKsKLskkN1pEsNNT > div._1umjft7ymqKrhhjDroeBUO'),
   ];
 
   containers.forEach(container => {
